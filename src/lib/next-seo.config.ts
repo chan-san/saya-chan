@@ -1,7 +1,6 @@
 import { DefaultSeoProps } from 'next-seo'
-// const faviconImage = process.env.NODE_ENV === 'production' ? '' : ''
-const faviconImage = ''
-const ogImage = ''
+const faviconImage = 'https://raw.githubusercontent.com/chan-san/saya-chan/main/public/ETH.png'
+const ogImage = 'https://raw.githubusercontent.com/chan-san/saya-chan/main/public/megami03738.jpg'
 const description = 'poweth-checker'
 const siteName = 'Saya-chan ~poweth-checker~'
 

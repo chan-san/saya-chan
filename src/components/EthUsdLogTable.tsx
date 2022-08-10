@@ -32,12 +32,12 @@ export const EthUsdLogTable: React.FC<Props> = ({
     <Tbody>
       <Tr>
         <Td>ETHUSD_220930</Td><Td>${round2(ethUsdLog.markPrices.ETHUSD_220930)}</Td>
-        <Td>-${round2(ethUsdLog.markPrices.ETHUSD_PERP - ethUsdLog.markPrices.ETHUSD_220930)}</Td>
+        <Td>${round2(ethUsdLog.markPrices.ETHUSD_PERP - ethUsdLog.markPrices.ETHUSD_220930)}</Td>
         <Td>{round2((1 - ethUsdLog.markPrices.ETHUSD_220930 / ethUsdLog.markPrices.ETHUSD_PERP) * 100.0)}%</Td>
       </Tr>
       <Tr>
         <Td>ETHUSD_221230</Td><Td>${round2(ethUsdLog.markPrices.ETHUSD_220930)}</Td>
-        <Td>-${round2(ethUsdLog.markPrices.ETHUSD_PERP - ethUsdLog.markPrices.ETHUSD_221230)}</Td>
+        <Td>${round2(ethUsdLog.markPrices.ETHUSD_PERP - ethUsdLog.markPrices.ETHUSD_221230)}</Td>
         <Td>{round2((1 - ethUsdLog.markPrices.ETHUSD_221230 / ethUsdLog.markPrices.ETHUSD_PERP) * 100.0)}%</Td>
       </Tr>
       <Tr>

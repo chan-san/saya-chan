@@ -9,7 +9,8 @@ import {
   InputGroup,
   InputLeftAddon,
   InputRightAddon,
-  Image
+  Image,
+  Flex
 } from "@chakra-ui/react"
 import { useEffect } from "react"
 import { ethUsdData, EthUsdLog } from "@/data/ethUsdData"
@@ -52,7 +53,10 @@ const Index = () => {
 
   return <>
     <VStack spacing="14" padding="6">
-      <Heading as='h1' fontSize="28px" display="flex" alignItems="center"><Image src={logo.src} marginRight=".3em" alt="ETH-logo" height="28px" />Saya-chan</Heading>
+      <Heading as='h1'>
+        <Flex fontSize="28px" alignItems="center"><Image src={logo.src} marginRight=".3em" alt="ETH-logo" height="28px" />Saya-chan</Flex>
+        <Text fontSize="14px" color="#888">~poweth checker~</Text>
+      </Heading>
       <VStack spacing="4">
         <Heading as='h2' fontSize="24px">Current mark price (Binance)</Heading>
         {(loading || !ethUsdLog) ? <Spinner /> : <EthUsdLogTable ethUsdLog={ethUsdLog} />}
