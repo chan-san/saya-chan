@@ -139,7 +139,7 @@ export const Entries: React.FC<Props> = ({
 
   return (
     <VStack spacing="4" className={styles.container}>
-      <Text color={signText(investment.profit, '#aa0000', '#008888')} fontSize="18px" fontWeight="bold" pb="2">
+      <Text color={signText(investment.profit, '#008888', '#aa0000')} fontSize="18px" fontWeight="bold" pb="2">
         {investment.deposit > 0 ? `${signText(investment.profit, 'Win', 'Lose')} $${round2(Math.abs(investment.profit))} ${signText(investment.profit, '🎉', '😭')}` : 'Win $xxx,xxx'}
         <br />
         <small>(ROI {investment.deposit > 0 ? `${signText(investment.profit)}${round2(Math.abs(((investment.profit + investment.deposit) / investment.deposit) - 1) * 100)}%` : '+XX.XX%'})</small>
