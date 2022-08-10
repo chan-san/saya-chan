@@ -25,7 +25,7 @@ const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
       <DefaultSeo {...defaultConfig} />
       <Box textAlign="center" maxWidth="600px" marginX="auto">
         <Component {...pageProps} />
-        <VStack mt="20px" p="30px" fontSize="xs">
+        <VStack mt="10px" p="30px" fontSize="xs">
           <Text>&copy; 2022 chan-san</Text>
           <HStack spacing="2em"><ExternalLink color="inherit" href="https://twitter.com/chan_san_jp"><FaTwitter /></ExternalLink><ExternalLink color="inherit" href="https://github.com/chan-san/saya-chan"><FaGithub /></ExternalLink></HStack>
         </VStack>
