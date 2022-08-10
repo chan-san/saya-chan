@@ -5,7 +5,8 @@ import {
   Box,
   Text,
   VStack,
-  HStack
+  HStack,
+  Image
 } from "@chakra-ui/react"
 import { DefaultSeo } from 'next-seo'
 import { defaultConfig } from '@/lib/next-seo.config'
@@ -29,6 +30,7 @@ const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
           <HStack spacing="2em"><ExternalLink color="inherit" href="https://twitter.com/chan_san_jp"><FaTwitter /></ExternalLink><ExternalLink color="inherit" href="https://github.com/chan-san/saya-chan"><FaGithub /></ExternalLink></HStack>
         </VStack>
       </Box>
+      <Image src={"https://raw.githubusercontent.com/chan-san/saya-chan/main/public/megami03738.jpg"} width="100vw" maxWidth="600px" alt="MEGAMI" position="fixed" bottom="0" right="0" zIndex="-100" opacity=".05" />
     </ChakraProvider>
   )
 }
