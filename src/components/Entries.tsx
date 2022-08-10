@@ -21,6 +21,18 @@ interface Props {
   ethUsdLog: EthUsdLog | null
 }
 
+type Investment = {
+  profit: number
+  deposit: number
+}
+
+const signText = (value: number, winText?: string, loseText?: string) => {
+  winText ||= '+'
+  loseText ||= '-'
+
+  return value > 0 ? winText : value < 0 ? loseText : ''
+}
+
 type Refs = {
   entryPrice: React.RefObject<HTMLInputElement>,
   entrySize: React.RefObject<HTMLInputElement>
@@ -52,7 +64,7 @@ const addValueToHash = (hash: {[key: string]: string}, key: string, value: strin
 export const Entries: React.FC<Props> = ({
   ethUsdLog
 }) => {
-  const [winDollar, setWinDollar] = useControllableState<string>({ defaultValue: 'xxx,xxx' })
+  const [investment, setInvestment] = useControllableState<Investment>({ defaultValue: {profit: 0, deposit: 0} })
   const refs: {[key: string]: Refs} = {
     ETHUSD_220930: createRefs(),
     ETHUSD_221230: createRefs(),
@@ -73,8 +85,10 @@ export const Entries: React.FC<Props> = ({
       + culculateFunds(refs.ETHUSD_220930, ethUsdLog.markPrices.ETHUSD_220930, 'SHORT').PNL
       + culculateFunds(refs.ETHUSD_221230, ethUsdLog.markPrices.ETHUSD_221230, 'SHORT').PNL
 
-    const winDollar = deposit.funds > 0 ? round2((deposit.size + currentPNL) * ethUsdLog.markPrices.ETHUSD_PERP - deposit.funds) : 'xxx,xxx'
-    setWinDollar(winDollar)
+    setInvestment({
+      profit: deposit.funds > 0 ? (deposit.size + currentPNL) * ethUsdLog.markPrices.ETHUSD_PERP - deposit.funds : 0,
+      deposit: deposit.funds
+    })
 
     const query = {}
     addValueToHash(query, 'p9', refs.ETHUSD_220930.entryPrice.current?.value)
@@ -125,7 +139,11 @@ export const Entries: React.FC<Props> = ({
 
   return (
     <VStack spacing="4" className={styles.container}>
-      <Text color="#aa0000" fontSize="18px" fontWeight="bold" pb="2">Win ${winDollar}</Text>
+      <Text color={signText(investment.profit, '#aa0000', '#008888')} fontSize="18px" fontWeight="bold" pb="2">
+        {investment.deposit > 0 ? `${signText(investment.profit, 'Win', 'Lose')} $${round2(Math.abs(investment.profit))} ${signText(investment.profit, '🎉', '😭')}` : 'Win $xxx,xxx'}
+        <br />
+        <small>(ROI {investment.deposit > 0 ? `${signText(investment.profit)}${round2(Math.abs(((investment.profit + investment.deposit) / investment.deposit) - 1) * 100)}%` : '+XX.XX%'})</small>
+      </Text>
       <HStack spacing="4">
         <Text className={styles.label}>ETHUSD_220930</Text>
         <InputGroup className={styles.inputGroup}>
