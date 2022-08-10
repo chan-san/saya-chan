@@ -9,7 +9,7 @@ import {
   Td
 } from "@chakra-ui/react"
 import { EthUsdLog } from "@/data/ethUsdData"
-
+import styles from "@/styles/EthUsdLogsTable.module.scss"
 interface Props {
   ethUsdLogs: EthUsdLog []
 }
@@ -23,7 +23,7 @@ const round2 = (value: number) => (Math.round(value * 100) / 100.0).toLocaleStri
 export const EthUsdLogsTable: React.FC<Props> = ({
   ethUsdLogs
 }) => (
-  <Table>
+  <Table className={styles.tableContainer}>
     <Thead>
       <Tr>
         <Th>ETHUSD_PERP</Th>
@@ -35,7 +35,7 @@ export const EthUsdLogsTable: React.FC<Props> = ({
       {ethUsdLogs.sort((a, b) => b.timestamp - a.timestamp).map((ethUsdLog, index) => (
         <React.Fragment key={`EthUsdLogsTable-Tr-${index}`}>
           <Tr>
-            <Td fontSize="12px" border="none" paddingBottom="4px" colSpan={3}>{(new Date(ethUsdLog.timestamp)).toLocaleString(undefined, {timeZoneName: 'short'})}</Td>
+            <Td className={styles.time} colSpan={3}>{(new Date(ethUsdLog.timestamp)).toLocaleString(undefined, {timeZoneName: 'short'})}</Td>
           </Tr>
           <Tr>
             <Td textAlign="center" paddingTop="0">${round2(ethUsdLog.markPrices.ETHUSD_PERP)}</Td>

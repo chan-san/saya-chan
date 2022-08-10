@@ -9,6 +9,7 @@ import {
   Td
 } from "@chakra-ui/react"
 import { EthUsdLog } from "@/data/ethUsdData"
+import styles from "@/styles/EthUsdLogTable.module.scss"
 
 interface Props {
   ethUsdLog: EthUsdLog
@@ -19,8 +20,8 @@ const round2 = (value: number) => (Math.round(value * 100) / 100.0).toLocaleStri
 export const EthUsdLogTable: React.FC<Props> = ({
   ethUsdLog
 }) => (
-  <Table>
-    <TableCaption mt="0">{(new Date(ethUsdLog.timestamp)).toLocaleString(undefined, {timeZoneName: 'short'})}</TableCaption>
+  <Table className={styles.tableContainer}>
+    <TableCaption>{(new Date(ethUsdLog.timestamp)).toLocaleString(undefined, {timeZoneName: 'short'})}</TableCaption>
     <Thead>
       <Tr>
         <Th>symbol</Th>

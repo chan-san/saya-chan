@@ -1,0 +1,24 @@
+.container {
+  font-size: 12px;
+
+  .label {
+    width: 105px;
+    flex: none;
+    text-align: left;
+  }
+
+  .inputGroup {
+    > * {
+      font-size: 12px;
+      padding: 0.5em;
+      height: 3em;
+    }
+    > input {
+      text-align: right;
+    }
+
+    .entryPrice {
+      width: 6em;
+    }
+  }
+}

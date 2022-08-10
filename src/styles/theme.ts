@@ -19,14 +19,6 @@ const styles = {
 };
 
 const components = {
-  Drawer: {
-    // setup light/dark mode component defaults
-    baseStyle: (props: any) => ({
-      // dialog: {
-      //   bg: mode('#ffffff', '#1A202C')(props),
-      // },
-    }),
-  },
   Link: {
     baseStyle: (props: any) => ({
       textDecoration: 'underline',
