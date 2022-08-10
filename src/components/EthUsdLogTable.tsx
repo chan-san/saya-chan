@@ -58,7 +58,7 @@ export const EthUsdLogTable: React.FC<Props> = ({
           <Td>{round2((1 - ethUsdLog.markPrices.ETHUSD_220930 / ethUsdLog.markPrices.ETHUSD_PERP) * 100.0)}% <DiffRateSimulation value={simulation.rate_0930} onChange={onChangeSimulation0930} /></Td>
         </Tr>
         <Tr>
-          <Td>ETHUSD_221230</Td><Td>${round2(ethUsdLog.markPrices.ETHUSD_220930)}</Td>
+          <Td>ETHUSD_221230</Td><Td>${round2(ethUsdLog.markPrices.ETHUSD_221230)}</Td>
           <Td>${round2(ethUsdLog.markPrices.ETHUSD_PERP - ethUsdLog.markPrices.ETHUSD_221230)}</Td>
           <Td>{round2((1 - ethUsdLog.markPrices.ETHUSD_221230 / ethUsdLog.markPrices.ETHUSD_PERP) * 100.0)}% <DiffRateSimulation value={simulation.rate_1230} onChange={onChangeSimulation1230} /></Td>
         </Tr>
