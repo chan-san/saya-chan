@@ -59,7 +59,7 @@ const Index = () => {
       </VStack>
       <VStack spacing="4" maxWidth="350px">
         <Heading as='h2' fontSize="20px">My position (entries)</Heading>
-        <Entries />
+        <Entries ethUsdLog={ethUsdLog} />
       </VStack>
       <VStack spacing="4">
         <Heading as='h2' fontSize="24px">Mark price history (Binance)</Heading>
