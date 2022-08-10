@@ -10,7 +10,7 @@ import {
 import { useEffect } from "react"
 import { ethUsdData, EthUsdLog } from "@/data/ethUsdData"
 import { Spinner } from '@chakra-ui/react'
-import { EthUsdLogTable } from "@/components/EthUsdLogTable"
+import { EthUsdLogTable, Simulation } from "@/components/EthUsdLogTable"
 import { EthUsdLogsTable } from "@/components/EthUsdLogsTable"
 import { Entries } from "@/components/Entries"
 import logo from "@/images/ETH.png"
@@ -18,7 +18,16 @@ import logo from "@/images/ETH.png"
 const Index = () => {
   const [ethUsdLog, setEthUsdLog] = useControllableState<EthUsdLog | null>({ defaultValue: null })
   const [loading, setLoading] = useControllableState<boolean>({ defaultValue: true })
+  const [simulation, setSimulation] = useControllableState<Simulation>({ defaultValue: {
+    rate_0930: '',
+    rate_1230: ''
+  } })
   let fetchTimer: NodeJS.Timeout
+
+  const setSimulationAndUpdate = (simulation: Simulation) => {
+    setSimulation(simulation)
+    fetchEthUsdLog()
+  }
 
   const fetchEthUsdLog = async () => {
     clearTimeout(fetchTimer)
@@ -31,8 +40,8 @@ const Index = () => {
         setEthUsdLog({
           timestamp: ethUsd220930.time,
           markPrices: {
-            ETHUSD_220930: ethUsd220930.markPrice,
-            ETHUSD_221230: ethUsd221230.markPrice,
+            ETHUSD_220930: simulation.rate_0930 !== '' ? ethUsdPerp.markPrice * (1 - Number(simulation.rate_0930)) : ethUsd220930.markPrice,
+            ETHUSD_221230: simulation.rate_1230 !== '' ? ethUsdPerp.markPrice * (1 - Number(simulation.rate_1230)) : ethUsd221230.markPrice,
             ETHUSD_PERP: ethUsdPerp.markPrice,
           }
         })
@@ -55,7 +64,7 @@ const Index = () => {
       </Heading>
       <VStack spacing="4">
         <Heading as='h2' fontSize="20px">Current mark price (Binance)</Heading>
-        {(loading || !ethUsdLog) ? <Spinner /> : <EthUsdLogTable ethUsdLog={ethUsdLog} />}
+        {(loading || !ethUsdLog) ? <Spinner /> : <EthUsdLogTable ethUsdLog={ethUsdLog} simulation={simulation} setSimulation={setSimulationAndUpdate} />}
       </VStack>
       <VStack spacing="4" maxWidth="350px">
         <Heading as='h2' fontSize="20px">My position (entries)</Heading>

@@ -15,6 +15,7 @@ import styles from "@/styles/Entries.module.scss"
 import { EthUsdLog } from "@/data/ethUsdData"
 import { useRouter } from 'next/router'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { EditIcon } from '@chakra-ui/icons'
 import { ExternalLink } from "@/parts/ExternalLink"
 
 interface Props {
