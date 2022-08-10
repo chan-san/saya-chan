@@ -1,14 +1,9 @@
 /* eslint-disable react/no-children-prop */
 import {
   Heading,
-  HStack,
   VStack,
   useControllableState,
   Text,
-  Input,
-  InputGroup,
-  InputLeftAddon,
-  InputRightAddon,
   Image,
   Flex
 } from "@chakra-ui/react"

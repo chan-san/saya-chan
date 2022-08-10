@@ -20,6 +20,7 @@ export const Entries: React.FC<Props> = ({
   
 }) => (
   <VStack spacing="4" className={styles.container}>
+    <Text color="#aa0000" fontSize="16px">Win $xxx,xxx</Text>
     <HStack spacing="4">
       <Text className={styles.label}>ETHUSD_220930</Text>
       <InputGroup className={styles.inputGroup}>
@@ -64,6 +65,5 @@ export const Entries: React.FC<Props> = ({
         <InputRightAddon children='ETH' />
       </InputGroup>
     </HStack>
-    <Text color="#aa0000" fontSize="16px">Win $xxx,xxx</Text>
   </VStack>
 )

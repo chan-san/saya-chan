@@ -22,7 +22,7 @@ const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   return (
     <ChakraProvider theme={theme}>
       <DefaultSeo {...defaultConfig} />
-      <Box textAlign="center" fontSize="xl" maxWidth="600px" marginX="auto">
+      <Box textAlign="center" maxWidth="600px" marginX="auto">
         <Component {...pageProps} />
         <VStack p="20px" fontSize="xs">
           <Text>&copy; 2022 chan-san</Text>
