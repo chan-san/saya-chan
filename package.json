@@ -1,0 +1,48 @@
+{
+  "name": "saya-chan",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start",
+    "export": "next export -o docs",
+    "deploy": "rimraf node_modules/.cache && yarn build && yarn export && nodetouch docs/.nojekyll && git add docs/ && git commit -m \"Deploy Next.js to gh-pages\" && git push origin main"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^2.0.1",
+    "@chakra-ui/react": "^2.1.2",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "@nextui-org/react": "^1.0.0-beta.7",
+    "framer-motion": "^6",
+    "next": "12.1.6",
+    "next-seo": "^5.4.0",
+    "react": "18.1.0",
+    "react-dom": "18.1.0",
+    "react-gtm-module": "^2.0.11",
+    "react-icons": "^3.0.0",
+    "react-responsive-carousel": "^3.2.23",
+    "recharts": "^2.1.10"
+  },
+  "devDependencies": {
+    "@types/node": "17.0.35",
+    "@types/react": "18.0.9",
+    "@types/react-dom": "18.0.5",
+    "@types/react-gtm-module": "^2.0.1",
+    "babel-plugin-transform-define": "^1.3.0",
+    "eslint": "8.16.0",
+    "eslint-config-next": "12.1.6",
+    "rimraf": "^3.0.2",
+    "touch": "^3.1.0",
+    "typescript": "4.7.2"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ]
+}
