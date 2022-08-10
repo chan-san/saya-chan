@@ -61,10 +61,11 @@ const Index = () => {
         <Heading as='h2' fontSize="20px">My position (entries)</Heading>
         <Entries ethUsdLog={ethUsdLog} />
       </VStack>
+      {null &&
       <VStack spacing="4">
         <Heading as='h2' fontSize="24px">Mark price history (Binance)</Heading>
         <EthUsdLogsTable ethUsdLogs={ethUsdData} />
-      </VStack>
+      </VStack>}
     </VStack>
   </>
 }
