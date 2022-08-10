@@ -88,6 +88,10 @@ export const Entries: React.FC<Props> = ({
     setPreFilledLink(`${location.protocol}//${location.host}${location.pathname}?${new URLSearchParams(query).toString()}`)
   }
 
+  useEffect(() => {
+    onChange()
+  }, [ethUsdLog])
+
   const router = useRouter()
   useEffect(() => {
     const {p9, s9, p12, s12, pp, sp, pd, sd} = router.query
