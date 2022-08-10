@@ -17,7 +17,7 @@ import { ExternalLink } from "@/parts"
 
 const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   useEffect(() => {
-    TagManager.initialize({ gtmId: '' });
+    TagManager.initialize({ gtmId: 'GTM-W9P82FB' });
   }, []);
 
   return (
