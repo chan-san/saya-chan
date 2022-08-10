@@ -7,7 +7,7 @@ const nextConfig = {
   unstable_runtimeJS: false,
   reactStrictMode: true,
   //assetPrefix: '',
-  assetPrefix: !debug ? '/poweth-checker/' : '',
+  assetPrefix: !debug ? '/saya-chan/' : '',
   sassOptions: {
     includePaths: [join(__dirname, 'src/styles')]
   },
