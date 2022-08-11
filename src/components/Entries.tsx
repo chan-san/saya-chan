@@ -116,6 +116,9 @@ export const Entries: React.FC<Props> = ({
     addValueToHash(query, 'sp', refs.ETHUSD_PERP.entrySize.current?.value)
     addValueToHash(query, 'pd', refs.Deposit.entryPrice.current?.value)
     addValueToHash(query, 'sd', refs.Deposit.entrySize.current?.value)
+    addValueToHash(query, 'ls9', positions.ETHUSD_220930 === 'long' ? 'l' : 's')
+    addValueToHash(query, 'ls12', positions.ETHUSD_221230 === 'long' ? 'l' : 's')
+    addValueToHash(query, 'lspp', positions.ETHUSD_PERP === 'long' ? 'l' : 's')
 
     const originalUrl = `${location.protocol}//${location.host}${location.pathname}`
     setPreFilledLink(Object.keys(query).length > 0 ? `${originalUrl}?${new URLSearchParams(query).toString()}`: originalUrl)
@@ -127,7 +130,7 @@ export const Entries: React.FC<Props> = ({
 
   const router = useRouter()
   useEffect(() => {
-    const {p9, s9, p12, s12, pp, sp, pd, sd} = router.query
+    const {p9, s9, p12, s12, pp, sp, pd, sd, ls9, ls12, lspp} = router.query
     if (p9 && refs.ETHUSD_220930.entryPrice.current) {
       refs.ETHUSD_220930.entryPrice.current.value = String(p9)
     }
@@ -153,6 +156,13 @@ export const Entries: React.FC<Props> = ({
       refs.Deposit.entrySize.current.value = String(sd)
     }
     onChange()
+
+    if (ls9 || ls12 || lspp) {
+      positions.ETHUSD_220930 = ls9 === 'l' ? 'long' : 'short'
+      positions.ETHUSD_221230 = ls12 === 'l' ? 'long' : 'short'
+      positions.ETHUSD_PERP = lspp === 'l' ? 'long' : 'short'
+      setPositions(positions)
+    }
   }, [router]);
 
   const [showProfit, setShowProfit] = useControllableState<boolean>({ defaultValue: true })
