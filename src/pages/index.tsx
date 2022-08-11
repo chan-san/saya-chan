@@ -8,15 +8,14 @@ import {
   Flex
 } from "@chakra-ui/react"
 import { useEffect } from "react"
-import { ethUsdData, EthUsdLog } from "@/data/ethUsdData"
+import { EthUsdData } from "@/types/EthUsdData"
 import { Spinner } from '@chakra-ui/react'
-import { EthUsdLogTable, Simulation } from "@/components/EthUsdLogTable"
-import { EthUsdLogsTable } from "@/components/EthUsdLogsTable"
+import { EthUsdTable, Simulation } from "@/components/EthUsdTable"
 import { Entries } from "@/components/Entries"
 import logo from "@/images/ETH.png"
 
 const Index = () => {
-  const [ethUsdLog, setEthUsdLog] = useControllableState<EthUsdLog | null>({ defaultValue: null })
+  const [ethUsdData, setEthUsdData] = useControllableState<EthUsdData | null>({ defaultValue: null })
   const [loading, setLoading] = useControllableState<boolean>({ defaultValue: true })
   const [simulation, setSimulation] = useControllableState<Simulation>({ defaultValue: {
     rate_0930: '',
@@ -26,10 +25,10 @@ const Index = () => {
 
   const setSimulationAndUpdate = (simulation: Simulation) => {
     setSimulation(simulation)
-    fetchEthUsdLog()
+    fetchEthUsdData()
   }
 
-  const fetchEthUsdLog = async () => {
+  const fetchEthUsdData = async () => {
     clearTimeout(fetchTimer)
     fetch("https://dapi.binance.com/dapi/v1/premiumIndex")
       .then((res) => res.json())
@@ -37,7 +36,7 @@ const Index = () => {
         const ethUsd220930 = data.find((log: any) => log.symbol === "ETHUSD_220930")
         const ethUsd221230 = data.find((log: any) => log.symbol === "ETHUSD_221230")
         const ethUsdPerp = data.find((log: any) => log.symbol === "ETHUSD_PERP")
-        setEthUsdLog({
+        setEthUsdData({
           timestamp: ethUsd220930.time,
           markPrices: {
             ETHUSD_220930: simulation.rate_0930 !== '' ? ethUsdPerp.markPrice * (1 - Number(simulation.rate_0930)) : ethUsd220930.markPrice,
@@ -48,12 +47,12 @@ const Index = () => {
         setLoading(false)
       })
       .finally(() => {
-        fetchTimer = setTimeout(fetchEthUsdLog, 10000)
+        fetchTimer = setTimeout(fetchEthUsdData, 10000)
       })
     }
 
   useEffect(() => {
-    fetchEthUsdLog()
+    fetchEthUsdData()
   }, [])
 
   return <>
@@ -64,17 +63,12 @@ const Index = () => {
       </Heading>
       <VStack spacing="4">
         <Heading as='h2' fontSize="20px">Current mark price (Binance)</Heading>
-        {(loading || !ethUsdLog) ? <Spinner /> : <EthUsdLogTable ethUsdLog={ethUsdLog} simulation={simulation} setSimulation={setSimulationAndUpdate} />}
+        {(loading || !ethUsdData) ? <Spinner /> : <EthUsdTable ethUsdData={ethUsdData} simulation={simulation} setSimulation={setSimulationAndUpdate} />}
       </VStack>
       <VStack spacing="4" maxWidth="350px">
         <Heading as='h2' fontSize="20px">My position (entries)</Heading>
-        <Entries ethUsdLog={ethUsdLog} />
+        <Entries ethUsdData={ethUsdData} />
       </VStack>
-      {null &&
-      <VStack spacing="4">
-        <Heading as='h2' fontSize="24px">Mark price history (Binance)</Heading>
-        <EthUsdLogsTable ethUsdLogs={ethUsdData} />
-      </VStack>}
     </VStack>
   </>
 }

@@ -12,14 +12,14 @@ import {
   useControllableState
 } from "@chakra-ui/react"
 import styles from "@/styles/Entries.module.scss"
-import { EthUsdLog } from "@/data/ethUsdData"
+import { EthUsdData } from "@/types/EthUsdData"
 import { useRouter } from 'next/router'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { EditIcon } from '@chakra-ui/icons'
 import { ExternalLink } from "@/parts/ExternalLink"
+import { formatNumber } from "@/lib/formatNumber"
 
 interface Props {
-  ethUsdLog: EthUsdLog | null
+  ethUsdData: EthUsdData | null
 }
 
 type Investment = {
@@ -54,8 +54,6 @@ const culculateFunds = (refs: Refs, markPrice: number, type: 'LONG' | 'SHORT'): 
   return {price, size, funds, PNL: type === 'LONG' ? size - funds/markPrice : funds/markPrice - size}
 }
 
-const round2 = (value: number) => (Math.round(value * 100) / 100.0).toLocaleString()
-
 const addValueToHash = (hash: {[key: string]: string}, key: string, value: string | undefined) => {
   if (value) {
     hash[key] = String(value)
@@ -63,7 +61,7 @@ const addValueToHash = (hash: {[key: string]: string}, key: string, value: strin
 }
   
 export const Entries: React.FC<Props> = ({
-  ethUsdLog
+  ethUsdData
 }) => {
   const [investment, setInvestment] = useControllableState<Investment>({ defaultValue: {profit: 0, deposit: 0} })
   const refs: {[key: string]: Refs} = {
@@ -76,18 +74,18 @@ export const Entries: React.FC<Props> = ({
   const [preFilledLink, setPreFilledLink] = useControllableState<string>({ defaultValue: '' })
 
   const onChange = () => {
-    if (!ethUsdLog) {
+    if (!ethUsdData) {
       return
     }
 
-    const deposit = culculateFunds(refs.Deposit, ethUsdLog.markPrices.ETHUSD_PERP, 'LONG')
+    const deposit = culculateFunds(refs.Deposit, ethUsdData.markPrices.ETHUSD_PERP, 'LONG')
     const currentPNL =
-      culculateFunds(refs.ETHUSD_PERP, ethUsdLog.markPrices.ETHUSD_PERP, 'LONG').PNL
-      + culculateFunds(refs.ETHUSD_220930, ethUsdLog.markPrices.ETHUSD_220930, 'SHORT').PNL
-      + culculateFunds(refs.ETHUSD_221230, ethUsdLog.markPrices.ETHUSD_221230, 'SHORT').PNL
+      culculateFunds(refs.ETHUSD_PERP, ethUsdData.markPrices.ETHUSD_PERP, 'LONG').PNL
+      + culculateFunds(refs.ETHUSD_220930, ethUsdData.markPrices.ETHUSD_220930, 'SHORT').PNL
+      + culculateFunds(refs.ETHUSD_221230, ethUsdData.markPrices.ETHUSD_221230, 'SHORT').PNL
 
     setInvestment({
-      profit: deposit.funds > 0 ? (deposit.size + currentPNL) * ethUsdLog.markPrices.ETHUSD_PERP - deposit.funds : 0,
+      profit: deposit.funds > 0 ? (deposit.size + currentPNL) * ethUsdData.markPrices.ETHUSD_PERP - deposit.funds : 0,
       deposit: deposit.funds
     })
 
@@ -105,7 +103,7 @@ export const Entries: React.FC<Props> = ({
 
   useEffect(() => {
     onChange()
-  }, [ethUsdLog])
+  }, [ethUsdData])
 
   const router = useRouter()
   useEffect(() => {
@@ -141,9 +139,9 @@ export const Entries: React.FC<Props> = ({
   return (
     <VStack spacing="4" className={styles.container}>
       <Text color={signText(investment.profit, '#008888', '#aa0000')} fontSize="18px" fontWeight="bold" pb="2">
-        {investment.deposit > 0 ? `${signText(investment.profit, 'Win', 'Lose')} $${round2(Math.abs(investment.profit))} ${signText(investment.profit, '🎉', '😭')}` : 'Win $xxx,xxx'}
+        {investment.deposit > 0 ? `${signText(investment.profit, 'Win', 'Lose')} $${formatNumber(Math.abs(investment.profit))} ${signText(investment.profit, '🎉', '😭')}` : 'Win $xxx,xxx'}
         <br />
-        <small>(ROI {investment.deposit > 0 ? `${signText(investment.profit)}${round2(Math.abs(((investment.profit + investment.deposit) / investment.deposit) - 1) * 100)}%` : '+XX.XX%'})</small>
+        <small>(ROI {investment.deposit > 0 ? `${formatNumber(((investment.profit + investment.deposit) / investment.deposit - 1) * 100, {hasSign: true})}%` : '+XX.XX%'})</small>
       </Text>
       <HStack spacing="4">
         <Text className={styles.label}>ETHUSD_220930</Text>
