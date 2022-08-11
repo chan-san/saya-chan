@@ -2,9 +2,19 @@
   font-size: 12px;
 
   .label {
-    width: 105px;
+    padding: 3px 0;
+    width: 110px;
     flex: none;
     text-align: left;
+    user-select: none;
+    &.short {
+      border-bottom: 2px solid #D66067;
+      cursor: pointer;
+    }
+    &.long {
+      border-bottom: 2px solid #71BB82;
+      cursor: pointer;
+    }
   }
 
   .inputGroup {
