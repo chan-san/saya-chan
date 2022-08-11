@@ -11,21 +11,24 @@ import {
   InputRightAddon,
   useControllableState
 } from "@chakra-ui/react"
+import { WarningTwoIcon } from '@chakra-ui/icons'
 import styles from "@/styles/Entries.module.scss"
-import { EthUsdLog } from "@/data/ethUsdData"
+import { Symbol, EthUsdData } from "@/types/EthUsdData"
 import { useRouter } from 'next/router'
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { EditIcon } from '@chakra-ui/icons'
 import { ExternalLink } from "@/parts/ExternalLink"
+import { formatNumber } from "@/lib/formatNumber"
 
 interface Props {
-  ethUsdLog: EthUsdLog | null
+  ethUsdData: EthUsdData | null
 }
 
 type Investment = {
   profit: number
   deposit: number
 }
+
+type Position = 'long' | 'short'
+type Positions = {[key in Symbol]: Position}
 
 const signText = (value: number, winText?: string, loseText?: string) => {
   winText ||= '+'
@@ -46,15 +49,13 @@ const createRefs: () => Refs = () => (
   }
 )
 
-const culculateFunds = (refs: Refs, markPrice: number, type: 'LONG' | 'SHORT'): {[key: string]: number} => {
+const culculateFunds = (refs: Refs, markPrice: number, position: Position): {[key: string]: number} => {
   const price = Number(refs.entryPrice.current?.value)
   const size = Number(refs.entrySize.current?.value)
   const funds = price * size
 
-  return {price, size, funds, PNL: type === 'LONG' ? size - funds/markPrice : funds/markPrice - size}
+  return {price, size, funds, PNL: position === 'long' ? size - funds/markPrice : funds/markPrice - size}
 }
-
-const round2 = (value: number) => (Math.round(value * 100) / 100.0).toLocaleString()
 
 const addValueToHash = (hash: {[key: string]: string}, key: string, value: string | undefined) => {
   if (value) {
@@ -63,7 +64,7 @@ const addValueToHash = (hash: {[key: string]: string}, key: string, value: strin
 }
   
 export const Entries: React.FC<Props> = ({
-  ethUsdLog
+  ethUsdData
 }) => {
   const [investment, setInvestment] = useControllableState<Investment>({ defaultValue: {profit: 0, deposit: 0} })
   const refs: {[key: string]: Refs} = {
@@ -73,21 +74,36 @@ export const Entries: React.FC<Props> = ({
     Deposit: createRefs()
   }
 
+  const defaultPositions: Positions = {
+    ETHUSD_220930: 'short',
+    ETHUSD_221230: 'short',
+    ETHUSD_PERP: 'long',
+  }
+
+  const [positions, setPositions] = useControllableState<Positions>({ defaultValue: defaultPositions})
+
+  const onTogglePositions = (symbol: Symbol) => {
+    setPositions({
+      ...positions,
+      [symbol]: positions[symbol] === 'long' ? 'short' : 'long'
+    })
+  }
+
   const [preFilledLink, setPreFilledLink] = useControllableState<string>({ defaultValue: '' })
 
   const onChange = () => {
-    if (!ethUsdLog) {
+    if (!ethUsdData) {
       return
     }
 
-    const deposit = culculateFunds(refs.Deposit, ethUsdLog.markPrices.ETHUSD_PERP, 'LONG')
+    const deposit = culculateFunds(refs.Deposit, ethUsdData.markPrices.ETHUSD_PERP, 'long')
     const currentPNL =
-      culculateFunds(refs.ETHUSD_PERP, ethUsdLog.markPrices.ETHUSD_PERP, 'LONG').PNL
-      + culculateFunds(refs.ETHUSD_220930, ethUsdLog.markPrices.ETHUSD_220930, 'SHORT').PNL
-      + culculateFunds(refs.ETHUSD_221230, ethUsdLog.markPrices.ETHUSD_221230, 'SHORT').PNL
+      culculateFunds(refs.ETHUSD_PERP, ethUsdData.markPrices.ETHUSD_PERP, positions['ETHUSD_PERP']).PNL
+      + culculateFunds(refs.ETHUSD_220930, ethUsdData.markPrices.ETHUSD_220930, positions['ETHUSD_220930']).PNL
+      + culculateFunds(refs.ETHUSD_221230, ethUsdData.markPrices.ETHUSD_221230, positions['ETHUSD_221230']).PNL
 
     setInvestment({
-      profit: deposit.funds > 0 ? (deposit.size + currentPNL) * ethUsdLog.markPrices.ETHUSD_PERP - deposit.funds : 0,
+      profit: deposit.funds > 0 ? (deposit.size + currentPNL) * ethUsdData.markPrices.ETHUSD_PERP - deposit.funds : 0,
       deposit: deposit.funds
     })
 
@@ -100,12 +116,14 @@ export const Entries: React.FC<Props> = ({
     addValueToHash(query, 'sp', refs.ETHUSD_PERP.entrySize.current?.value)
     addValueToHash(query, 'pd', refs.Deposit.entryPrice.current?.value)
     addValueToHash(query, 'sd', refs.Deposit.entrySize.current?.value)
-    setPreFilledLink(`${location.protocol}//${location.host}${location.pathname}?${new URLSearchParams(query).toString()}`)
+
+    const originalUrl = `${location.protocol}//${location.host}${location.pathname}`
+    setPreFilledLink(Object.keys(query).length > 0 ? `${originalUrl}?${new URLSearchParams(query).toString()}`: originalUrl)
   }
 
   useEffect(() => {
     onChange()
-  }, [ethUsdLog])
+  }, [ethUsdData, positions])
 
   const router = useRouter()
   useEffect(() => {
@@ -136,17 +154,40 @@ export const Entries: React.FC<Props> = ({
     }
     onChange()
   }, [router]);
-  
+
+  const [showProfit, setShowProfit] = useControllableState<boolean>({ defaultValue: true })
+
+  const onToggleProfitVisible = () => {
+    setShowProfit(!showProfit)
+  }
+
+  const onClickPositionReset = () => {
+    if (!window.confirm("Are you sure? You can't undo this action afterwards.")) {
+      return
+    }
+
+    Object.keys(refs).forEach(key => {
+      const {entryPrice, entrySize} = refs[key]
+      if (entryPrice.current) {
+        entryPrice.current.value = ''
+      }
+      if (entrySize.current) {
+        entrySize.current.value = ''
+      }
+    })
+
+    setPositions(defaultPositions)
+  }
 
   return (
     <VStack spacing="4" className={styles.container}>
-      <Text color={signText(investment.profit, '#008888', '#aa0000')} fontSize="18px" fontWeight="bold" pb="2">
-        {investment.deposit > 0 ? `${signText(investment.profit, 'Win', 'Lose')} $${round2(Math.abs(investment.profit))} ${signText(investment.profit, '🎉', '😭')}` : 'Win $xxx,xxx'}
+      <Text color={signText(investment.profit, '#008888', '#aa0000')} fontSize="18px" fontWeight="bold" pb="2" cursor="pointer" position="relative" onClick={onToggleProfitVisible}>
+        {investment.deposit > 0 ? <><span>{signText(investment.profit, 'Win', 'Lose')}</span> $<span style={{filter: showProfit ? undefined : 'blur(5px)'}}>{formatNumber(Math.abs(investment.profit))}</span> <span>{signText(investment.profit, '🎉', '😭')}</span></> : <span>Win $xxx,xxx</span>}
         <br />
-        <small>(ROI {investment.deposit > 0 ? `${signText(investment.profit)}${round2(Math.abs(((investment.profit + investment.deposit) / investment.deposit) - 1) * 100)}%` : '+XX.XX%'})</small>
+        <small>(ROI {investment.deposit > 0 ? `${formatNumber(((investment.profit + investment.deposit) / investment.deposit - 1) * 100, {hasSign: true})}%` : '+XX.XX%'})</small>
       </Text>
       <HStack spacing="4">
-        <Text className={styles.label}>ETHUSD_220930</Text>
+        <Text onClick={() => onTogglePositions('ETHUSD_220930')} className={`${styles.label} ${styles[positions.ETHUSD_220930]}`}>ETHUSD_220930</Text>
         <InputGroup className={styles.inputGroup}>
           <InputLeftAddon children='price $' />
           <Input placeholder='1702.20' className={styles.entryPrice} ref={refs.ETHUSD_220930.entryPrice} onChange={onChange} />
@@ -157,7 +198,7 @@ export const Entries: React.FC<Props> = ({
         </InputGroup>
       </HStack>
       <HStack spacing="4">
-        <Text className={styles.label}>ETHUSD_221230</Text>
+        <Text onClick={() => onTogglePositions('ETHUSD_221230')} className={`${styles.label} ${styles[positions.ETHUSD_221230]}`}>ETHUSD_221230</Text>
         <InputGroup className={styles.inputGroup}>
           <InputLeftAddon children='price $' />
           <Input placeholder='1692.20' className={styles.entryPrice} ref={refs.ETHUSD_221230.entryPrice} onChange={onChange} />
@@ -168,7 +209,7 @@ export const Entries: React.FC<Props> = ({
         </InputGroup>
       </HStack>
       <HStack spacing="4">
-        <Text className={styles.label}>ETHUSD_PERP</Text>
+        <Text onClick={() => onTogglePositions('ETHUSD_PERP')} className={`${styles.label} ${styles[positions.ETHUSD_PERP]}`}>ETHUSD_PERP</Text>
         <InputGroup className={styles.inputGroup}>
           <InputLeftAddon children='price $' />
           <Input placeholder='1712.84' className={styles.entryPrice} ref={refs.ETHUSD_PERP.entryPrice} onChange={onChange} />
@@ -189,9 +230,11 @@ export const Entries: React.FC<Props> = ({
           <InputRightAddon children='ETH' />
         </InputGroup>
       </HStack>
-      {preFilledLink !== '' && <Box>
-        <ExternalLink href={preFilledLink}><ExternalLinkIcon /> Open pre-filled link</ExternalLink>
-      </Box>}
+      {preFilledLink.includes('?') ? <Box>
+        <Text>Here is the link with your position prefilled</Text>
+        <ExternalLink href={preFilledLink} linkAsText={true} wordBreak="break-all" textAlign="left" />
+        <Text mt="14px" cursor="pointer" userSelect="none" onClick={onClickPositionReset}><WarningTwoIcon /> Reset</Text>
+      </Box> : <ExternalLink href={preFilledLink} linkAsText={true} wordBreak="break-all" textAlign="left" />}
     </VStack>
   )
 }
