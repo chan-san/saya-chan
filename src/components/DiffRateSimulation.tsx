@@ -24,13 +24,9 @@ export const DiffRateSimulation: React.FC<Props> = ({
     <MenuList>
       <MenuOptionGroup defaultValue='' value={value} title='Simulation' type='radio' onChange={onChange}>
         <MenuItemOption value=''>None</MenuItemOption>
-        <MenuItemOption value='0'>0%</MenuItemOption>
-        <MenuItemOption value='0.05'>5%</MenuItemOption>
-        <MenuItemOption value='0.1'>10%</MenuItemOption>
-        <MenuItemOption value='0.15'>15%</MenuItemOption>
-        <MenuItemOption value='0.2'>20%</MenuItemOption>
-        <MenuItemOption value='0.25'>25%</MenuItemOption>
-        <MenuItemOption value='0.3'>30%</MenuItemOption>
+        {[0, 1, 2, 3, 4, 5, 10, 15, 20, 30].map(rate => (
+          <MenuItemOption key={`DiffRateSimulation-${rate}`} value={String(rate/100)}>{rate}%</MenuItemOption>
+        ))}
       </MenuOptionGroup>
     </MenuList>
   </Menu>
