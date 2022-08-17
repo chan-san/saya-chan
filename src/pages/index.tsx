@@ -1,4 +1,3 @@
-/* eslint-disable react/no-children-prop */
 import {
   Heading,
   VStack,
@@ -7,53 +6,70 @@ import {
   Image,
   Flex
 } from "@chakra-ui/react"
-import { useEffect } from "react"
+import { useEffect, useCallback, useRef } from "react"
 import { EthUsdData } from "@/types/EthUsdData"
 import { Spinner } from '@chakra-ui/react'
 import { EthUsdTable, Simulation } from "@/components/EthUsdTable"
 import { Entries } from "@/components/Entries"
 import logo from "@/images/ETH.png"
 
+interface PremiumIndex {
+  symbol: string
+  time: number
+  markPrice: number
+}
+
 const Index = () => {
   const [ethUsdData, setEthUsdData] = useControllableState<EthUsdData | null>({ defaultValue: null })
   const [loading, setLoading] = useControllableState<boolean>({ defaultValue: true })
+  const [errorMessage, setErrorMessage] = useControllableState<string>({ defaultValue: "" })
   const [simulation, setSimulation] = useControllableState<Simulation>({ defaultValue: {
     rate_0930: '',
     rate_1230: ''
   } })
-  let fetchTimer: NodeJS.Timeout
+  const fetchTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const setSimulationAndUpdate = (simulation: Simulation) => {
     setSimulation(simulation)
     fetchEthUsdData()
   }
 
-  const fetchEthUsdData = async () => {
-    clearTimeout(fetchTimer)
-    fetch("https://dapi.binance.com/dapi/v1/premiumIndex")
-      .then((res) => res.json())
-      .then((data) => {
-        const ethUsd220930 = data.find((log: any) => log.symbol === "ETHUSD_220930")
-        const ethUsd221230 = data.find((log: any) => log.symbol === "ETHUSD_221230")
-        const ethUsdPerp = data.find((log: any) => log.symbol === "ETHUSD_PERP")
-        setEthUsdData({
-          timestamp: ethUsd220930.time,
-          markPrices: {
-            ETHUSD_220930: simulation.rate_0930 !== '' ? ethUsdPerp.markPrice * (1 - Number(simulation.rate_0930)) : ethUsd220930.markPrice,
-            ETHUSD_221230: simulation.rate_1230 !== '' ? ethUsdPerp.markPrice * (1 - Number(simulation.rate_1230)) : ethUsd221230.markPrice,
-            ETHUSD_PERP: ethUsdPerp.markPrice,
-          }
-        })
-        setLoading(false)
-      })
-      .finally(() => {
-        fetchTimer = setTimeout(fetchEthUsdData, 10000)
-      })
+  const fetchEthUsdData = useCallback(async () => {  
+    clearTimeout(fetchTimerRef.current)
+    const res = await fetch("https://dapi.binance.com/dapi/v1/premiumIndex")
+    const data = await res.json()
+    if (!res.ok) {
+      setErrorMessage(data.msg)
+      console.error(data.msg)
+      fetchTimerRef.current = setTimeout(fetchEthUsdData, 10000)
+      return
     }
+    
+    try {
+      const ethUsd220930: PremiumIndex = data.find((log: PremiumIndex) => log.symbol === "ETHUSD_220930")
+      const ethUsd221230: PremiumIndex = data.find((log: PremiumIndex) => log.symbol === "ETHUSD_221230")
+      const ethUsdPerp: PremiumIndex = data.find((log: PremiumIndex) => log.symbol === "ETHUSD_PERP")
+      setEthUsdData({
+        timestamp: ethUsd220930.time,
+        markPrices: {
+          ETHUSD_220930: simulation.rate_0930 !== '' ? ethUsdPerp.markPrice * (1 - Number(simulation.rate_0930)) : ethUsd220930.markPrice,
+          ETHUSD_221230: simulation.rate_1230 !== '' ? ethUsdPerp.markPrice * (1 - Number(simulation.rate_1230)) : ethUsd221230.markPrice,
+          ETHUSD_PERP: ethUsdPerp.markPrice,
+        }
+      })
+      setLoading(false)
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.error(e.message)
+      }
+    } finally {
+      fetchTimerRef.current = setTimeout(fetchEthUsdData, 10000)
+    }
+  }, [simulation, setEthUsdData, setLoading, setErrorMessage])
 
   useEffect(() => {
     fetchEthUsdData()
-  }, [])
+  }, [fetchEthUsdData])
 
   return <>
     <VStack spacing="10">
@@ -63,7 +79,7 @@ const Index = () => {
       </Heading>
       <VStack spacing="4">
         <Heading as='h2' fontSize="20px">Current mark price (Binance)</Heading>
-        {(loading || !ethUsdData) ? <Spinner /> : <EthUsdTable ethUsdData={ethUsdData} simulation={simulation} setSimulation={setSimulationAndUpdate} />}
+        {(loading || !ethUsdData) ? <><Spinner />{errorMessage && <Text color="red">[Error]<br />{errorMessage}</Text>}</> : <EthUsdTable ethUsdData={ethUsdData} simulation={simulation} setSimulation={setSimulationAndUpdate} />}
       </VStack>
       <VStack spacing="4" maxWidth="350px">
         <Heading as='h2' fontSize="20px">My position (entries)</Heading>
