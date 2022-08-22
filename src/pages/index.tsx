@@ -1,12 +1,11 @@
 import {
   Heading,
   VStack,
-  useControllableState,
   Text,
   Image,
   Flex
 } from "@chakra-ui/react"
-import { useEffect, useCallback, useRef } from "react"
+import { useEffect, useCallback, useRef, useState } from "react"
 import { EthUsdData } from "@/types/EthUsdData"
 import { Spinner } from '@chakra-ui/react'
 import { EthUsdTable, Simulation } from "@/components/EthUsdTable"
@@ -20,19 +19,14 @@ interface PremiumIndex {
 }
 
 const Index = () => {
-  const [ethUsdData, setEthUsdData] = useControllableState<EthUsdData | null>({ defaultValue: null })
-  const [loading, setLoading] = useControllableState<boolean>({ defaultValue: true })
-  const [errorMessage, setErrorMessage] = useControllableState<string>({ defaultValue: "" })
-  const [simulation, setSimulation] = useControllableState<Simulation>({ defaultValue: {
+  const [ethUsdData, setEthUsdData] = useState<EthUsdData | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [errorMessage, setErrorMessage] = useState<string>('')
+  const [simulation, setSimulation] = useState<Simulation>({
     rate_0930: '',
     rate_1230: ''
-  } })
+  })
   const fetchTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
-
-  const setSimulationAndUpdate = (simulation: Simulation) => {
-    setSimulation(simulation)
-    fetchEthUsdData()
-  }
 
   const fetchEthUsdData = useCallback(async () => {  
     clearTimeout(fetchTimerRef.current)
@@ -67,8 +61,15 @@ const Index = () => {
     }
   }, [simulation, setEthUsdData, setLoading, setErrorMessage])
 
-  useEffect(() => {
+  const setSimulationAndUpdate = useCallback((simulation: Simulation) => {
+    setSimulation(simulation)
     fetchEthUsdData()
+  }, [setSimulation, fetchEthUsdData])
+
+  useEffect(() => {
+    if (fetchTimerRef.current === undefined) {
+      fetchTimerRef.current = setTimeout(fetchEthUsdData, 10)
+    }
   }, [fetchEthUsdData])
 
   return <>

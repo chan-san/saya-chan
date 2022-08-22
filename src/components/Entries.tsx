@@ -1,5 +1,5 @@
 /* eslint-disable react/no-children-prop */
-import React, { useEffect, useCallback } from "react"
+import React, { useEffect, useCallback, useState } from "react"
 import {
   VStack,
   HStack,
@@ -8,8 +8,7 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
-  InputRightAddon,
-  useControllableState
+  InputRightAddon
 } from "@chakra-ui/react"
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import styles from "@/styles/Entries.module.scss"
@@ -80,8 +79,8 @@ const addValueToHash = (hash: {[key: string]: string}, key: string, value: strin
 export const Entries: React.FC<Props> = ({
   ethUsdData
 }) => {
-  const [investment, setInvestment] = useControllableState<Investment>({ defaultValue: {profit: 0, deposit: 0} })
-  const [positions, setPositions] = useControllableState<Positions>({ defaultValue: defaultPositions})
+  const [investment, setInvestment] = useState<Investment>({profit: 0, deposit: 0})
+  const [positions, setPositions] = useState<Positions>(defaultPositions)
 
   const onTogglePositions = useCallback((symbol: Symbol) => {
     setPositions({
@@ -90,7 +89,7 @@ export const Entries: React.FC<Props> = ({
     })
   }, [positions, setPositions])
 
-  const [preFilledLink, setPreFilledLink] = useControllableState<string>({ defaultValue: '' })
+  const [preFilledLink, setPreFilledLink] = useState<string>('')
 
   const onChange = useCallback(() => {
     if (!ethUsdData) {
@@ -127,7 +126,7 @@ export const Entries: React.FC<Props> = ({
 
   useEffect(() => {
     onChange()
-  }, [ethUsdData, positions, onChange])
+  }, [onChange, ethUsdData, positions])
 
   const router = useRouter()
   useEffect(() => {
@@ -165,9 +164,9 @@ export const Entries: React.FC<Props> = ({
         ETHUSD_PERP: lspp === 'l' ? 'long' : 'short'
       })
     }
-  }, [router, onChange, setPositions])
+  }, [router, setPositions])
 
-  const [showProfit, setShowProfit] = useControllableState<boolean>({ defaultValue: true })
+  const [showProfit, setShowProfit] = useState<boolean>(true)
 
   const onToggleProfitVisible = () => {
     setShowProfit(!showProfit)
