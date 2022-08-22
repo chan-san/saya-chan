@@ -1,5 +1,5 @@
 /* eslint-disable react/no-children-prop */
-import React, { useEffect } from "react"
+import React, { useEffect, useCallback, useState } from "react"
 import {
   VStack,
   HStack,
@@ -8,8 +8,7 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
-  InputRightAddon,
-  useControllableState
+  InputRightAddon
 } from "@chakra-ui/react"
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import styles from "@/styles/Entries.module.scss"
@@ -49,6 +48,20 @@ const createRefs: () => Refs = () => (
   }
 )
 
+const refs: {[key: string]: Refs} ={
+  ETHUSD_220930: createRefs(),
+  ETHUSD_221230: createRefs(),
+  ETHUSD_PERP: createRefs(),
+  Deposit: createRefs()
+}
+
+const defaultPositions: Positions = {
+  ETHUSD_220930: 'short',
+  ETHUSD_221230: 'short',
+  ETHUSD_PERP: 'long',
+}
+
+
 const culculateFunds = (refs: Refs, markPrice: number, position: Position): {[key: string]: number} => {
   const price = Number(refs.entryPrice.current?.value)
   const size = Number(refs.entrySize.current?.value)
@@ -66,32 +79,19 @@ const addValueToHash = (hash: {[key: string]: string}, key: string, value: strin
 export const Entries: React.FC<Props> = ({
   ethUsdData
 }) => {
-  const [investment, setInvestment] = useControllableState<Investment>({ defaultValue: {profit: 0, deposit: 0} })
-  const refs: {[key: string]: Refs} = {
-    ETHUSD_220930: createRefs(),
-    ETHUSD_221230: createRefs(),
-    ETHUSD_PERP: createRefs(),
-    Deposit: createRefs()
-  }
+  const [investment, setInvestment] = useState<Investment>({profit: 0, deposit: 0})
+  const [positions, setPositions] = useState<Positions>(defaultPositions)
 
-  const defaultPositions: Positions = {
-    ETHUSD_220930: 'short',
-    ETHUSD_221230: 'short',
-    ETHUSD_PERP: 'long',
-  }
-
-  const [positions, setPositions] = useControllableState<Positions>({ defaultValue: defaultPositions})
-
-  const onTogglePositions = (symbol: Symbol) => {
+  const onTogglePositions = useCallback((symbol: Symbol) => {
     setPositions({
       ...positions,
       [symbol]: positions[symbol] === 'long' ? 'short' : 'long'
     })
-  }
+  }, [positions, setPositions])
 
-  const [preFilledLink, setPreFilledLink] = useControllableState<string>({ defaultValue: '' })
+  const [preFilledLink, setPreFilledLink] = useState<string>('')
 
-  const onChange = () => {
+  const onChange = useCallback(() => {
     if (!ethUsdData) {
       return
     }
@@ -122,11 +122,11 @@ export const Entries: React.FC<Props> = ({
 
     const originalUrl = `${location.protocol}//${location.host}${location.pathname}`
     setPreFilledLink(Object.keys(query).length > 0 ? `${originalUrl}?${new URLSearchParams(query).toString()}`: originalUrl)
-  }
+  }, [ethUsdData, positions, setInvestment, setPreFilledLink])
 
   useEffect(() => {
     onChange()
-  }, [ethUsdData, positions])
+  }, [onChange, ethUsdData, positions])
 
   const router = useRouter()
   useEffect(() => {
@@ -158,14 +158,15 @@ export const Entries: React.FC<Props> = ({
     onChange()
 
     if (ls9 || ls12 || lspp) {
-      positions.ETHUSD_220930 = ls9 === 'l' ? 'long' : 'short'
-      positions.ETHUSD_221230 = ls12 === 'l' ? 'long' : 'short'
-      positions.ETHUSD_PERP = lspp === 'l' ? 'long' : 'short'
-      setPositions(positions)
+      setPositions({
+        ETHUSD_220930: ls9 === 'l' ? 'long' : 'short',
+        ETHUSD_221230: ls12 === 'l' ? 'long' : 'short',
+        ETHUSD_PERP: lspp === 'l' ? 'long' : 'short'
+      })
     }
-  }, [router]);
+  }, [router, setPositions])
 
-  const [showProfit, setShowProfit] = useControllableState<boolean>({ defaultValue: true })
+  const [showProfit, setShowProfit] = useState<boolean>(true)
 
   const onToggleProfitVisible = () => {
     setShowProfit(!showProfit)
