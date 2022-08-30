@@ -19,6 +19,8 @@ import { formatNumber } from "@/lib/formatNumber"
 
 interface Props {
   ethUsdData: EthUsdData | null
+  digit?: number
+  coin?: string
 }
 
 type Investment = {
@@ -77,8 +79,12 @@ const addValueToHash = (hash: {[key: string]: string}, key: string, value: strin
 }
   
 export const Entries: React.FC<Props> = ({
-  ethUsdData
+  ethUsdData,
+  digit,
+  coin
 }) => {
+  coin ||= 'ETH'
+
   const [investment, setInvestment] = useState<Investment>({profit: 0, deposit: 0})
   const [positions, setPositions] = useState<Positions>(defaultPositions)
 
@@ -164,7 +170,7 @@ export const Entries: React.FC<Props> = ({
         ETHUSD_PERP: lspp === 'l' ? 'long' : 'short'
       })
     }
-  }, [router, setPositions])
+  }, [onChange, router, setPositions])
 
   const [showProfit, setShowProfit] = useState<boolean>(true)
 
@@ -198,36 +204,36 @@ export const Entries: React.FC<Props> = ({
         <small>(ROI {investment.deposit > 0 ? `${formatNumber(((investment.profit + investment.deposit) / investment.deposit - 1) * 100, {hasSign: true})}%` : '+XX.XX%'})</small>
       </Text>
       <HStack spacing="4">
-        <Text onClick={() => onTogglePositions('ETHUSD_220930')} className={`${styles.label} ${styles[positions.ETHUSD_220930]}`}>ETHUSD_220930</Text>
+        <Text onClick={() => onTogglePositions('ETHUSD_220930')} className={`${styles.label} ${styles[positions.ETHUSD_220930]}`}>{coin}USD_220930</Text>
         <InputGroup className={styles.inputGroup}>
           <InputLeftAddon children='price $' />
           <Input placeholder='1702.20' className={styles.entryPrice} ref={refs.ETHUSD_220930.entryPrice} onChange={onChange} />
         </InputGroup>
         <InputGroup className={styles.inputGroup}>
           <Input placeholder='100' ref={refs.ETHUSD_220930.entrySize} onChange={onChange} />
-          <InputRightAddon children='ETH' />
+          <InputRightAddon children={coin} />
         </InputGroup>
       </HStack>
       <HStack spacing="4">
-        <Text onClick={() => onTogglePositions('ETHUSD_221230')} className={`${styles.label} ${styles[positions.ETHUSD_221230]}`}>ETHUSD_221230</Text>
+        <Text onClick={() => onTogglePositions('ETHUSD_221230')} className={`${styles.label} ${styles[positions.ETHUSD_221230]}`}>{coin}USD_221230</Text>
         <InputGroup className={styles.inputGroup}>
           <InputLeftAddon children='price $' />
           <Input placeholder='1692.20' className={styles.entryPrice} ref={refs.ETHUSD_221230.entryPrice} onChange={onChange} />
         </InputGroup>
         <InputGroup className={styles.inputGroup}>
           <Input placeholder='25' ref={refs.ETHUSD_221230.entrySize} onChange={onChange} />
-          <InputRightAddon children='ETH' />
+          <InputRightAddon children={coin} />
         </InputGroup>
       </HStack>
       <HStack spacing="4">
-        <Text onClick={() => onTogglePositions('ETHUSD_PERP')} className={`${styles.label} ${styles[positions.ETHUSD_PERP]}`}>ETHUSD_PERP</Text>
+        <Text onClick={() => onTogglePositions('ETHUSD_PERP')} className={`${styles.label} ${styles[positions.ETHUSD_PERP]}`}>{coin}USD_PERP</Text>
         <InputGroup className={styles.inputGroup}>
           <InputLeftAddon children='price $' />
           <Input placeholder='1712.84' className={styles.entryPrice} ref={refs.ETHUSD_PERP.entryPrice} onChange={onChange} />
         </InputGroup>
         <InputGroup className={styles.inputGroup}>
           <Input placeholder='100' ref={refs.ETHUSD_PERP.entrySize} onChange={onChange} />
-          <InputRightAddon children='ETH' />
+          <InputRightAddon children={coin} />
         </InputGroup>
       </HStack>
       <HStack spacing="4">
@@ -238,7 +244,7 @@ export const Entries: React.FC<Props> = ({
         </InputGroup>
         <InputGroup className={styles.inputGroup}>
           <Input placeholder='25' ref={refs.Deposit.entrySize} onChange={onChange} />
-          <InputRightAddon children='ETH' />
+          <InputRightAddon children={coin} />
         </InputGroup>
       </HStack>
       {preFilledLink.includes('?') ? <Box>
