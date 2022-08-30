@@ -21,14 +21,20 @@ export type Simulation = {
 interface Props {
   ethUsdData: EthUsdData
   simulation: Simulation
+  digit?: number
+  coin?: string
   setSimulation: (simulation: Simulation) => void
 }
 
 export const EthUsdTable: React.FC<Props> = ({
   ethUsdData,
   simulation,
+  digit,
+  coin,
   setSimulation
 }) => {
+
+  coin = coin || 'ETH'
 
   const onChangeSimulation0930 = (value: string | string[]) => {
     simulation.rate_0930 = String(value)
@@ -52,18 +58,18 @@ export const EthUsdTable: React.FC<Props> = ({
       </Thead>
       <Tbody>
         <Tr>
-          <Td>ETHUSD_220930</Td><Td>{formatNumber(ethUsdData.markPrices.ETHUSD_220930, {prefix: '$'})}</Td>
-          <Td>{formatNumber(ethUsdData.markPrices.ETHUSD_PERP - ethUsdData.markPrices.ETHUSD_220930, {prefix: '$'})}</Td>
-          <Td>{formatNumber((1 - ethUsdData.markPrices.ETHUSD_220930 / ethUsdData.markPrices.ETHUSD_PERP) * 100)}% <DiffRateSimulation value={simulation.rate_0930} onChange={onChangeSimulation0930} /></Td>
+          <Td>{coin}USD_220930</Td><Td>{formatNumber(ethUsdData.markPrices.ETHUSD_220930, {prefix: '$', digit})}</Td>
+          <Td>{formatNumber(ethUsdData.markPrices.ETHUSD_PERP - ethUsdData.markPrices.ETHUSD_220930, {prefix: '$', digit})}</Td>
+          <Td>{formatNumber((1 - ethUsdData.markPrices.ETHUSD_220930 / ethUsdData.markPrices.ETHUSD_PERP) * 100, {digit})}% <DiffRateSimulation value={simulation.rate_0930} onChange={onChangeSimulation0930} /></Td>
         </Tr>
         <Tr>
-          <Td>ETHUSD_221230</Td><Td>{formatNumber(ethUsdData.markPrices.ETHUSD_221230, {prefix: '$'})}</Td>
-          <Td>{formatNumber(ethUsdData.markPrices.ETHUSD_PERP - ethUsdData.markPrices.ETHUSD_221230, {prefix: '$'})}</Td>
-          <Td>{formatNumber((1 - ethUsdData.markPrices.ETHUSD_221230 / ethUsdData.markPrices.ETHUSD_PERP) * 100)}% <DiffRateSimulation value={simulation.rate_1230} onChange={onChangeSimulation1230} /></Td>
+          <Td>{coin}USD_221230</Td><Td>{formatNumber(ethUsdData.markPrices.ETHUSD_221230, {prefix: '$', digit})}</Td>
+          <Td>{formatNumber(ethUsdData.markPrices.ETHUSD_PERP - ethUsdData.markPrices.ETHUSD_221230, {prefix: '$', digit})}</Td>
+          <Td>{formatNumber((1 - ethUsdData.markPrices.ETHUSD_221230 / ethUsdData.markPrices.ETHUSD_PERP) * 100, {digit})}% <DiffRateSimulation value={simulation.rate_1230} onChange={onChangeSimulation1230} /></Td>
         </Tr>
         <Tr>
 
-          <Td>ETHUSD_PERP</Td><Td>${formatNumber(ethUsdData.markPrices.ETHUSD_PERP)}</Td>
+          <Td>{coin}USD_PERP</Td><Td>${formatNumber(ethUsdData.markPrices.ETHUSD_PERP, {digit})}</Td>
           <Td textAlign="center">-</Td>
           <Td textAlign="center">-</Td>
         </Tr>
