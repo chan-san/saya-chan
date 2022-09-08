@@ -170,7 +170,7 @@ export const Entries: React.FC<Props> = ({
         ETHUSD_PERP: lspp === 'l' ? 'long' : 'short'
       })
     }
-  }, [onChange, router, setPositions])
+  }, [router])
 
   const [showProfit, setShowProfit] = useState<boolean>(true)
 
