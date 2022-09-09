@@ -10,14 +10,14 @@ export const formatNumber: (value: number, props?: Props) => string = (value, pr
   const prefix = props?.prefix ?? ''
 
   const d = 10 ** digit
-  let text = (Math.round(value * d) / d).toLocaleString()
+  let text = (Math.round(Math.abs(value) * d) / d).toLocaleString()
   if (digit > 0) {
     if (!text.includes('.')) {
       text += '.'
     }
     text += '0'.repeat(digit - (text.split('.')[1]?.length || 0))
   }
-  const sign = hasSign && value > 0 ? '+' : ''
+  const sign = value < 0 ? '-' : (hasSign && value > 0) ? '+' : ''
 
   return `${sign}${prefix || ''}${text}`
 }
